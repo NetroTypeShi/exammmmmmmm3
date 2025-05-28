@@ -1,7 +1,16 @@
 import basicAuth from 'express-basic-auth'
-import { users } from '../database/users.js'
+import { getUserPassword } from '../database/users.js'
+
 export const authMiddleware = basicAuth({
-  users,
+  authorizer: async (username, password, cb) => {
+    try {
+      const userPassword = await getUserPassword(username)
+      cb(null, userPassword === password)
+    } catch {
+      cb(null, false)
+    }
+  },
+  authorizeAsync: true,
   challenge: true,
   unauthorizedResponse: 'Credenciales inválidas'
 })
